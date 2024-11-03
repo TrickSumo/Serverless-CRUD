@@ -29,6 +29,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+          TEST: ${{ secrets.TEST }}
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             STAGE="prod"
@@ -38,6 +39,7 @@ jobs:
             STAGE="dev"
           fi
           env | grep SERVERLESS_ACCESS_KEY
+          env | grep TEST
           echo $STAGE
           serverless login --debug
           serverless deploy --stage $STAGE
