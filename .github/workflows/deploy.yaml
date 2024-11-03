@@ -28,10 +28,9 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: 
-            if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then STAGE="prod"
-            elif [[ "${GITHUB_REF}" == "refs/heads/pipeline" ]]; then STAGE="preprod"
-            else STAGE="dev"
-            fi
-            serverless deploy --stage $STAGE
-            echo "Deploying to stage: $STAGE"
+        run: if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then STAGE="prod"
+          elif [[ "${GITHUB_REF}" == "refs/heads/pipeline" ]]; then STAGE="preprod"
+          else STAGE="dev"
+          fi
+          serverless deploy --stage $STAGE
+          echo $STAGE
