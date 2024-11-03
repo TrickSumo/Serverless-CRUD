@@ -10,29 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
   steps:
-    - name: Check out the repository
-      uses: actions/checkout@v2
+      - name: Checkout current branch ✅
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: "14"
+      - name: Set up Node.js 🔨
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
 
-    - name: Install Serverless
-      run: npm install -g serverless
+      - name: Install Serverless Framework 🪟
+        run: npm install -g serverless
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install node dependencies 🌳
+        run: npm install
 
-    - name: Deploy to Serverless
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      run: |
-        if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then STAGE="prod"
-        elif [[ "${GITHUB_REF}" == "refs/heads/pipeline" ]]; then STAGE="preprod"
-        else STAGE="dev"
-        fi
+      - name: Deploy to AWS 🖥️
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then STAGE="prod"
+          elif [[ "${GITHUB_REF}" == "refs/heads/pipeline" ]]; then STAGE="preprod"
+          else STAGE="dev"
+          fi
 
-        echo "Deploying to stage: $STAGE"
-        serverless deploy --stage $STAGE
+        echo "Deploying to stage:" 
+        echo $STAGE
