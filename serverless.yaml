@@ -1,9 +1,27 @@
 service: CRUD-APP
 frameworkVersion: "4"
 
+custom:
+  tableName: "coffee-crud-${sls:stage}"
+
 provider:
   name: aws
   runtime: nodejs20.x
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - Fn::GetAtt: [CoffeeTable, Arn]
+  environment:
+    COFFEE_TABLE: ${self:custom.tableName}
 
 functions:
   getCoffee:
@@ -11,6 +29,9 @@ functions:
     events:
       - httpApi:
           path: /coffee
+          method: GET
+      - httpApi:
+          path: /coffee/{id}
           method: GET
 
   createCoffee:
@@ -33,3 +54,17 @@ functions:
       - httpApi:
           path: /coffee/{id}
           method: DELETE
+
+resources:
+  Resources:
+    CoffeeTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: coffeeId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: coffeeId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.tableName}
