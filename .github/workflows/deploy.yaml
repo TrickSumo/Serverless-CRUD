@@ -41,5 +41,6 @@ jobs:
           env | grep SERVERLESS_ACCESS_KEY
           env | grep TEST
           echo $STAGE
-          serverless login --debug
+          echo $SERVERLESS_ACCESS_KEY
+          serverless login
           serverless deploy --stage $STAGE
