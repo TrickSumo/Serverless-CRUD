@@ -1,0 +1,35 @@
+service: CRUD-APP
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+functions:
+  getCoffee:
+    handler: index.getCoffee
+    events:
+      - httpApi:
+          path: /coffee
+          method: GET
+
+  createCoffee:
+    handler: index.createCoffee
+    events:
+      - httpApi:
+          path: /coffee
+          method: POST
+
+  updateCoffee:
+    handler: index.updateCoffee
+    events:
+      - httpApi:
+          path: /coffee/{id}
+          method: PUT
+
+  deleteCoffee:
+    handler: index.deleteCoffee
+    events:
+      - httpApi:
+          path: /coffee/{id}
+          method: DELETE
