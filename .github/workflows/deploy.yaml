@@ -38,5 +38,5 @@ jobs:
             STAGE="dev"
           fi
           echo $STAGE
-          serverless login
+          serverless login --debug
           serverless deploy --stage $STAGE
