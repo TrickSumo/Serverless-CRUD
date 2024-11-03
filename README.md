@@ -17,5 +17,5 @@ Coffee shop schema
         "Name":"Special Coffee",
         "Price":"$45",
         "Available":"true"
-    }
+    } 
 } -->
