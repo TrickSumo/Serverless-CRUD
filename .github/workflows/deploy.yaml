@@ -37,6 +37,7 @@ jobs:
           else
             STAGE="dev"
           fi
+          env
           echo $STAGE
           serverless login --debug
           serverless deploy --stage $STAGE
