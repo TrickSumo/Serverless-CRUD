@@ -2,9 +2,24 @@ const { getCoffee } = require("./index");
 const { getDynamoDBTableItem, getAllDynamoDBTableItems } = require("./dynamo");
 
 const mockData = [
-  { id: "coffee101", Name: "Filter Coffee", Price: "$30", Available: "true" },
-  { id: "coffee102", Name: "Cold Coffee", Price: "$15", Available: "true" },
-  { id: "coffee103", Name: "Special Coffee", Price: "$45", Available: "true" },
+  {
+    coffeeId: "coffee101",
+    name: "Filter Coffee",
+    price: "$30",
+    available: "true",
+  },
+  {
+    coffeeId: "coffee102",
+    name: "Cold Coffee",
+    price: "$15",
+    available: "true",
+  },
+  {
+    coffeeId: "coffee103",
+    name: "Special Coffee",
+    price: "$45",
+    available: "true",
+  },
 ];
 
 jest.mock("./dynamo", () => ({
@@ -26,14 +41,14 @@ describe("getCoffee Function Test Cases", () => {
     getAllDynamoDBTableItems.mockResolvedValue([]);
     const result = await getCoffee(event);
     expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body)).toEqual(["abc"]);
+    expect(JSON.parse(result.body)).toEqual([]);
   });
 
   it("Should return coffee details when coffee API is called with coffeeID", async () => {
     const coffeeId = "coffee101";
     const event = { pathParameters: { id: coffeeId } };
     const mockCoffeeData = mockData.find(
-      (coffee) => coffee.id === event.pathParameters.id
+      (coffee) => coffee.id === event.pathParameters.coffeeId
     );
     getDynamoDBTableItem.mockResolvedValue(mockCoffeeData);
     const result = await getCoffee(event);

@@ -1,9 +1,14 @@
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const {
+  DynamoDBClient,
+  PutItemCommand,
+  UpdateItemCommand,
+} = require("@aws-sdk/client-dynamodb");
 const {
   DynamoDBDocumentClient,
   GetCommand,
   ScanCommand,
 } = require("@aws-sdk/lib-dynamodb");
+const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
@@ -19,7 +24,6 @@ const getDynamoDBTableItem = async (coffeeId) => {
   };
   const command = new GetCommand(params);
   const response = await docClient.send(command);
-  console.log("response", response);
   if (response?.Item) return response.Item;
   else throw new Error("404");
 };
@@ -30,29 +34,70 @@ const getAllDynamoDBTableItems = async () => {
   };
   const command = new ScanCommand(params);
   const response = await docClient.send(command);
-  console.log("response", response);
   return response.Items;
 };
 
-const postData = async (data) => {
-  // Logic to post data
-  return { message: "Data posted", data };
+const postDynamoDBTableItem = async (data) => {
+  if (!data || !data.coffeeId || !data.name || !data.price || !data.available) {
+    throw new Error(
+      "Missing required attributes for the item: coffeeId, name, price, or available."
+    );
+  }
+
+  const params = {
+    TableName: COFFEE_TABLE,
+    Item: marshall({
+      coffeeId: data?.coffeeId,
+      name: data?.name,
+      price: data?.price,
+      available: data?.available,
+    }),
+    ConditionExpression: "attribute_not_exists(coffeeId)",
+  };
+
+  const command = new PutItemCommand(params);
+  const response = await docClient.send(command);
+  return response;
 };
 
-const putData = async (id, data) => {
-  // Logic to update data
-  return { message: "Data updated", id, data };
+const putDynamoDBTableItem = async (coffeeId, data) => {
+  const { name, price, available } = data || {};
+
+  let updateExpression = `SET ${name ? "#name = :name," : ""} ${price ? "price = :price," : ""} ${available ? "available = :available, " : ""}`.slice(0, -2);
+
+  const params = {
+    TableName: COFFEE_TABLE,
+    Key: marshall({ coffeeId }),
+    UpdateExpression: updateExpression,
+    ...(name && {
+      ExpressionAttributeNames: {
+        "#name": "name", // name is a reserved keyword in DynamoDB
+      },
+    }),
+
+    ExpressionAttributeValues: marshall({
+      ...(name && { ":name": data?.name }),
+      ...(price && { ":price": data?.price }),
+      ...(available && { ":available": data?.available }),
+    }),
+    ReturnValues: "ALL_NEW",
+    ConditionExpression: "attribute_exists(coffeeId)",
+  };
+
+  console.log(params);
+  const command = new UpdateItemCommand(params);
+  const response = await docClient.send(command);
+  return unmarshall(response.Attributes);
 };
 
-const deleteData = async (id) => {
-  // Logic to delete data
+const deleteDynamoDBTableItem = async (id) => {
   return { message: "Data deleted", id };
 };
 
 module.exports = {
   getDynamoDBTableItem,
   getAllDynamoDBTableItems,
-  postData,
-  putData,
-  deleteData,
+  postDynamoDBTableItem,
+  putDynamoDBTableItem,
+  deleteDynamoDBTableItem,
 };
