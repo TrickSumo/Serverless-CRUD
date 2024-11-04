@@ -2,6 +2,7 @@ const {
   DynamoDBClient,
   PutItemCommand,
   UpdateItemCommand,
+  DeleteItemCommand
 } = require("@aws-sdk/client-dynamodb");
 const {
   DynamoDBDocumentClient,
@@ -84,14 +85,21 @@ const putDynamoDBTableItem = async (coffeeId, data) => {
     ConditionExpression: "attribute_exists(coffeeId)",
   };
 
-  console.log(params);
   const command = new UpdateItemCommand(params);
   const response = await docClient.send(command);
   return unmarshall(response.Attributes);
 };
 
-const deleteDynamoDBTableItem = async (id) => {
-  return { message: "Data deleted", id };
+const deleteDynamoDBTableItem = async (coffeeId) => {
+  const params = {
+    TableName: COFFEE_TABLE,
+    Key: marshall({ coffeeId }),
+    ReturnValues: "ALL_OLD",
+    ConditionExpression: "attribute_exists(coffeeId)",
+  };
+  const command = new DeleteItemCommand(params);
+  const response = await docClient.send(command);
+  return unmarshall(response.Attributes);
 };
 
 module.exports = {

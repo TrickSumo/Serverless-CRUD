@@ -42,9 +42,8 @@ const createCoffee = async (event) => {
   const { body } = event;
   try {
     const data = await postDynamoDBTableItem(JSON.parse(body));
-    return createResponse(201, { message: "Data posted" });
+    return createResponse(201, { message: "Item Created Successfully!", data: JSON.parse(body) });
   } catch (error) {
-    console.log("error", error);
     if (error.message === "The conditional request failed")
       return createResponse(409, { error: "Item already exists!" });
     else
@@ -63,10 +62,10 @@ const updateCoffee = async (event) => {
 
   try {
     const data = await putDynamoDBTableItem(coffeeId, JSON.parse(body));
-    return createResponse(200, data);
+    return createResponse(200, { message: "Item Updated Successfully!", data });
   } catch (error) {
     if (error.message === "The conditional request failed")
-      return createResponse(409, { error: "Item does not exists!" });
+      return createResponse(404, { error: "Item does not exists!" });
     return createResponse(500, {
       error: "Internal Server Error!",
       message: error.message,
@@ -74,12 +73,22 @@ const updateCoffee = async (event) => {
   }
 };
 
-const deleteCoffee = (id) => {
-  const index = coffees.findIndex((coffee) => coffee.id === id);
-  if (index !== -1) {
-    return coffees.splice(index, 1)[0];
+const deleteCoffee = async (event) => {
+  const { pathParameters } = event;
+  const coffeeId = pathParameters?.id;
+  if (!coffeeId) return createResponse(400, { error: "Missing coffeeId" });
+  try {
+    const data = await deleteDynamoDBTableItem(coffeeId);
+    return createResponse(200, { message: "Item Deleted Successfully!", data });
   }
-  return null;
+  catch (error) {
+    if (error.message === "The conditional request failed")
+      return createResponse(404, { error: "Item does not exists!" });
+    return createResponse(500, {
+      error: "Internal Server Error!",
+      message: error.message,
+    });
+  }
 };
 
 module.exports = {
