@@ -6,8 +6,6 @@ const {
   deleteDynamoDBTableItem,
 } = require("./dynamo");
 
-const coffees = [];
-
 const createResponse = (statusCode, body) => {
   const responseBody = JSON.stringify(body);
   return {
@@ -54,7 +52,7 @@ const createCoffee = async (event) => {
   }
 };
 
-// Name, price and avaialbility of coffee can be edited. If coffeeId is not found in record, function will throw an error.
+// Name, price and availability of coffee can be edited. If coffeeId is not found in record, function will throw an error.
 const updateCoffee = async (event) => {
   const { body, pathParameters } = event;
   const coffeeId = pathParameters?.id;

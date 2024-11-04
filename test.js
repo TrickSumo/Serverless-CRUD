@@ -38,6 +38,7 @@ jest.mock("./dynamo", () => ({
 }));
 
 describe("getCoffee Function Test Cases", () => {
+
   it("Should return list of all coffees when coffee API is called without coffeeID", async () => {
     getAllDynamoDBTableItems.mockResolvedValue(mockData);
     const event = { pathParameters: {} };
@@ -74,6 +75,7 @@ describe("getCoffee Function Test Cases", () => {
     expect(result.statusCode).toBe(404);
     expect(JSON.parse(result.body)).toEqual({ error: "Item Not Found!" });
   });
+
 });
 
 describe("createCoffee Function Test Cases", () => {
@@ -103,9 +105,11 @@ describe("createCoffee Function Test Cases", () => {
     expect(result.statusCode).toBe(409);
     expect(JSON.parse(result.body)).toEqual({ "error": "Item already exists!" });
   });
+
 });
 
 describe("updateCoffee Function Test Cases", () => {
+
   it("Should return success if coffee is updated successfully", async () => {
     const event = { body: JSON.stringify(mockData[0]), pathParameters: { id: "coffee101" } };
     putDynamoDBTableItem.mockResolvedValue({});
