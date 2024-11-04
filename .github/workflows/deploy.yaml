@@ -24,7 +24,15 @@ jobs:
       - name: Install node dependencies 🌳
         run: npm install
 
+      - name: Run Test Cases 🧪
+        run: npm test
+
+      - name: Check if tests failed ❌
+        if: failure()
+        run: echo "Tests failed, not deploying..."
+
       - name: Deploy to AWS 🖥️
+        if: success()
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

@@ -2,20 +2,21 @@
 
 Coffee shop schema
 
-<!-- {
-    "coffe101": {
+<!-- [
+    {  "id":"coffee101",
         "Name":"Filter Coffee",
         "Price":"$30",
         "Available":"true"
     },
-    "coffe102": {
+    {   "id" : "coffee102",
         "Name":"Cold Coffee",
         "Price":"$15",
         "Available":"true"
     },
-    "coffe103": {
+    {  "id":"coffee103",
         "Name":"Special Coffee",
         "Price":"$45",
         "Available":"true"
     }
+    ]
 } -->
