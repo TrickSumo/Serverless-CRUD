@@ -27,7 +27,7 @@ jobs:
       - name: Run Test Cases 🧪
         run: npm test
 
-      - name: Check if tests failed ❌
+      - name: Check if tests failed 🤔
         if: failure()
         run: echo "Tests failed, not deploying..."
 

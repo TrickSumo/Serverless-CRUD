@@ -26,7 +26,7 @@ describe("getCoffee Function Test Cases", () => {
     getAllDynamoDBTableItems.mockResolvedValue([]);
     const result = await getCoffee(event);
     expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body)).toEqual([]);
+    expect(JSON.parse(result.body)).toEqual(["abc"]);
   });
 
   it("Should return coffee details when coffee API is called with coffeeID", async () => {
