@@ -63,7 +63,7 @@ const postDynamoDBTableItem = async (data) => {
 const putDynamoDBTableItem = async (coffeeId, data) => {
   const { name, price, available } = data || {};
 
-  let updateExpression = `SET ${name ? "#name = :name," : ""} ${price ? "price = :price," : ""} ${available ? "available = :available, " : ""}`.slice(0, -2);
+  let updateExpression = `SET ${name ? "#name = :name, " : ""}${price ? "price = :price, " : ""}${available ? "available = :available, " : ""}`.slice(0, -2);
 
   const params = {
     TableName: COFFEE_TABLE,
