@@ -39,3 +39,6 @@ functions:
 -   deleteCoffee: CRUD-APP-dev-deleteCoffee 
 
 
+Test Endpoint with Authentication added
+
+
