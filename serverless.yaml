@@ -1,5 +1,8 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: tricksumo
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: crud
 service: CRUD-APP
-frameworkVersion: "4"
 
 custom:
   tableName: "coffee-crud-${sls:stage}"
@@ -20,8 +23,28 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - Fn::GetAtt: [CoffeeTable, Arn]
+        - Effect : Allow
+          Action:
+            - cognito-idp:AdminInitiateAuth
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminSetUserPassword
+          Resource:
+            - Fn::GetAtt: [CoffeeUserPool, Arn]
+  
+  httpApi:
+    authorizers:
+      jwtAuthorizerABC:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: 
+          Fn::Sub: "https://cognito-idp.${AWS::Region}.amazonaws.com/${CoffeeUserPool}/"
+        audience:
+          - !Ref CoffeeUserPoolClient
+
   environment:
     COFFEE_TABLE: ${self:custom.tableName}
+    COGNITO_USER_POOL_ID: { Ref: CoffeeUserPool }
+    CLIENT_ID: { Ref: CoffeeUserPoolClient }
 
 functions:
   getCoffee:
@@ -33,6 +56,9 @@ functions:
       - httpApi:
           path: /coffee/{id}
           method: GET
+          authorizer:
+            name: jwtAuthorizerABC
+
 
   createCoffee:
     handler: index.createCoffee
@@ -68,3 +94,59 @@ resources:
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:custom.tableName}
+    CoffeeUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: coffee-user-pool
+        UsernameAttributes:
+          - email
+        AutoVerifiedAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireLowercase: true
+            RequireNumbers: true
+            RequireSymbols: true
+            RequireUppercase: true
+        Schema:
+          - Name: email
+            Required: true
+            AttributeDataType: String
+          - Name: name
+            Required: true
+            AttributeDataType: String
+    CoffeeUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: coffee-user-pool-client
+        UserPoolId: { Ref: CoffeeUserPool }
+        GenerateSecret: false
+        AccessTokenValidity: 5
+        IdTokenValidity: 5
+        ExplicitAuthFlows:
+          - "ADMIN_NO_SRP_AUTH"
+          - "USER_PASSWORD_AUTH"
+        AllowedOAuthFlowsUserPoolClient: true
+        AllowedOAuthFlows:
+          - "code"
+          - "implicit"
+        AllowedOAuthScopes:
+          - "phone"
+          - "email"
+          - "openid"
+          - "profile"
+          - "aws.cognito.signin.user.admin"
+        CallbackURLs:
+          - "https://example.com/callback"
+        LogoutURLs:
+          - "https://example.com/logout"
+        SupportedIdentityProviders: 
+          - COGNITO
+    
+    CognitoUserPoolDomain:
+      Type: AWS::Cognito::UserPoolDomain
+      Properties:
+        Domain: coffee-app-12345678-dfd-33-df
+        UserPoolId: { Ref: CoffeeUserPool }
+        
